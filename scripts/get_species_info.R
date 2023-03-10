@@ -1,9 +1,8 @@
 #!/usr/bin/Rscript
 
-## Script name: code_snippets.R
+## Script name: get_species_info.R
 ##
-## Purpose of script: here are some parts of code to crop spatial 
-## objects around the area of Crete and other test code.
+## Aim:
 ##
 ## Author: Savvas Paragkamian
 ##
@@ -17,12 +16,12 @@ library(taxize)
 library(units)
 library(vegan)
 
+# gbif download
+# use this POLYGON((23.44952 34.65265,26.43362 34.65265,26.43362 35.7184,23.44952 35.7184,23.44952 34.65265))
+# for Crete
 
-locations_shp <- sf::st_read("../data/arthropods_occurrences/arthropods_occurrences.shp")
-locations_spatial <- sf::st_read("../results/locations_spatial/locations_spatial.shp")
-locations_grid <- sf::st_read("../results/locations_grid/locations_grid.shp") 
-crete_shp <- sf::st_read("../data/crete/crete.shp")
-endemic_species <- read_delim("../results/endemic_species_assessment.tsv", delim="\t")
+
+
 
 # Resolve names
 ## gnr_datasources() %>% filter(title=="GBIF Backbone Taxonomy") id=11
