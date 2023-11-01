@@ -60,6 +60,25 @@ gunzip -c ../pubmed2023/*.tsv.gz |  gawk -F"\t" '(FNR==NR){id[$2]=1; next}($1 in
 
 > GBIF.org (17 January 2023) GBIF Occurrence Download  https://doi.org/10.15468/dl.xphruk
 
+The `occurrence.txt` has 259 fields. 
+
+```
+head -1 occurrence.txt | gawk -F"\t" '{for (i=1;i<=NF;i++){print i FS $i}}' 
+```
+
+Summery of occurrences per kingdom
+```
+gawk -F"\t" '(NR>1){a[$197]++}END{for (i in a){print i FS a[i]}}' occurrence.txt
+Protozoa        483
+Chromista       12984
+Plantae 50763
+Archaea 35
+Animalia        93692
+Bacteria        2189
+incertae sedis  871
+Fungi   11675
+```
+
 ## IUCN
 
 More than 650 assessments of species that occur in Crete are available in IUCN Red Lists.
