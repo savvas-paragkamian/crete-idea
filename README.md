@@ -29,6 +29,28 @@ holistic approaches to crutial scientific and sociatal questions.
 
 Based on the consept of data representation of ecosystems 
 
+## BHL
+
+Historical literature of Crete's biodiversity.
+
+```
+wget http://www.biodiversitylibrary.org/data/data.zip
+```
+From the schema and the BHL data model we perform searches on Title, Items and Subjects. Items are the bound objects of BHL, so a title can have multiple items. The digitised document is the item. Additionaly, each title is assigned with subjects. The are not standardised. Each Item also has a pages table with information per page.
+
+In the BHL schema it is noted that :
+
+NOTE: This export DOES NOT include all of the pages in the BHL database. It only contains pages on which taxonomic names have been identified.
+
+## Pubmed
+
+Keep the PMIDs of the articles that mention crete
+
+```
+date; gunzip -c ../pubmed2023/*.tsv.gz | ./scripts/search_engine.awk keywords_crete.txt - > crete_results.tsv ; date 
+```
+
+
 ## GBIF
 
 > GBIF.org (17 January 2023) GBIF Occurrence Download  https://doi.org/10.15468/dl.xphruk
