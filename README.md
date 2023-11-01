@@ -50,6 +50,11 @@ Keep the PMIDs of the articles that mention crete
 date; gunzip -c ../pubmed2023/*.tsv.gz | ./scripts/search_engine.awk keywords_crete.txt - > crete_results.tsv ; date 
 ```
 
+then keep only the PMIDs of Crete
+
+```
+gunzip -c ../pubmed2023/*.tsv.gz |  gawk -F"\t" '(FNR==NR){id[$2]=1; next}($1 in id){print $0}' crete_pubmed_ids.tsv - > crete_pubmed_all.tsv
+```
 
 ## GBIF
 
