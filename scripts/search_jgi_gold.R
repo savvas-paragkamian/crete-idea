@@ -36,7 +36,7 @@ gold_sf <- gold_Biosample |>
 
 ### global GOLD biosamples locations
 gold_map<- ggplot()+ geom_point(gold_sf,mapping=aes(x=LONGITUDE,y=LATITUDE))
-ggsave(plot=gold_map,filename= "gold_map.png")
+ggsave(plot=gold_map,filename= "figures/gold_map.png")
 
 ### terrestial Crete GOLD biosamples
 gold_sf_crete <- st_intersection(gold_sf, crete_shp)
@@ -45,6 +45,7 @@ gold_map_crete <- ggplot() +
     geom_sf(crete_shp, mapping=aes()) +
     geom_point(gold_sf_crete,mapping=aes(x=LONGITUDE,y=LATITUDE))
 
+ggsave(plot=gold_map_crete,filename= "figures/gold_map_crete.png")
 
 ### text search for Crete samples, returns many false positives
 gold_Biosample_crete <- gold_Biosample[grep("Crete", gold_Biosample$BIOSAMPLE_GEOGRAPHIC_LOCATION),]
