@@ -79,6 +79,11 @@ incertae sedis  871
 Fungi   11675
 ```
 
+## JGI GOLD
+
+Download all the metadata of the GOLD database from [here](https://gold.jgi.doe.gov/downloads). 
+Select the `Public Studies/Biosamples/SPs/APs/Organisms Excel` option.
+
 ## IUCN
 
 More than 650 assessments of species that occur in Crete are available in IUCN Red Lists.
