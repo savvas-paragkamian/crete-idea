@@ -47,13 +47,21 @@ NOTE: This export DOES NOT include all of the pages in the BHL database. It only
 Keep the PMIDs of the articles that mention crete
 
 ```
-date; gunzip -c ../pubmed2023/*.tsv.gz | ./scripts/search_engine.awk keywords_crete.txt - > crete_results.tsv ; date 
+date; gunzip -c ../pubmed2023/*.tsv.gz | ./scripts/search_engine.awk keywords_crete.txt - > crete_pubmed_ids.tsv ; date 
 ```
 
 then keep only the PMIDs of Crete
 
 ```
-gunzip -c ../pubmed2023/*.tsv.gz |  gawk -F"\t" '(FNR==NR){id[$2]=1; next}($1 in id){print $0}' crete_pubmed_ids.tsv - > crete_pubmed_all.tsv
+gunzip -c ../pubmed2023/*.tsv.gz \ 
+    | gawk -F"\t" -v OFS="\t" '(FNR==NR){id[$2]=1; next}{gsub("\\|.*$","",$1); if ($1 in id){print}}' crete_results.tsv - > crete_pubmed_all.tsv
+```
+The OFS ensures the output is tab-separated after gsub.
+
+Sanity check that all abstracts are returned
+
+```
+gawk -F"\t" '(FNR==NR){found[$1]=1; next}(!($2 in found)){print $2}' crete_pubmed_all.tsv crete_pubmed_ids.tsv
 ```
 
 ## GBIF
