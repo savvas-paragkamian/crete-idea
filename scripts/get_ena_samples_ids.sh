@@ -5,7 +5,7 @@
 # Author: Savvas Paragkamian
 
 ## example of running the script
-## ./scripts/cli-workflow.sh -f example-legacy-literature/reportofbritisha1843-appendix-1.pdf -d output
+## ./scripts/get_ena_samples_ids.sh -f example_projects.txt -d ena_samples
 
 ## Usage of the script
 usage="Use the parameter -f for the path of txt file (inside the repository, \
