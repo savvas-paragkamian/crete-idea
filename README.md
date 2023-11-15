@@ -118,7 +118,18 @@ ENA database has an API functionality to search with geographic boundaries.
 Using this method with a POST request we build the following querry:
 
 ```
-curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'result=sample&query=geo_box1(34.6580,23.1572,35.8195,26.8076)&fields=sample_accession,sample_description,location_start,lon,lat,altitude,assembly_quality,assembly_software,binning_software,bio_material,broad_scale_environmental_context,broker_name,cell_line,cell_type,center_name,checklist,collected_by,collection_date,collection_date_end,collection_date_start,completeness_score,contamination_score,country,cultivar,culture_collection,datahub,depth,description,dev_stage,ecotype,elevation,environment_biome,environment_feature,environment_material,environmental_medium,environmental_sample,experimental_factor,first_public,germline,host,host_body_site,host_genotype,host_gravidity,host_growth_conditions,host_phenotype,host_scientific_name,host_sex,host_status,host_tax_id,identified_by,investigation_type,isolate,isolation_source,keywords,last_updated,local_environmental_context,location,location_end,marine_region,mating_type,ncbi_reporting_standard,ph,project_name,protocol_label,salinity,sample_alias,sample_capture_status,sample_collection,sample_material,sample_title,sampling_campaign,sampling_platform,sampling_site,scientific_name,secondary_sample_accession,sequencing_method,serotype,serovar,sex,specimen_voucher,status,strain,study_accession,sub_species,sub_strain,submission_tool,submitted_host_sex,tag,target_gene,tax_id,taxonomic_classification,taxonomic_identity_marker,temperature,tissue_lib,tissue_type,variety&limit=0&format=tsv' "https://www.ebi.ac.uk/ena/portal/api/search" > ena_post_crete.tsv
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'result=sample&query=geo_box1(34.6580,23.1572,35.8195,26.8076)&fields=all&limit=0&format=tsv' "https://www.ebi.ac.uk/ena/portal/api/search" > ena_post_crete.tsv
+```
+
+To get all the sample attributes:
+
+```
+./scripts/get_ena_samples_attributes.py results/ena_post_crete.tsv ena_data_crete
+```
+
+To transform all xml attributes to tsv:
+```
+./scripts/ena_xml_to_csv.py ena_data_crete  results/ena_samples_attributes-crete.tsv
 ```
 
 Island Sampling Day, a metagenome project, sampled top soil in 72 locations around Crete
