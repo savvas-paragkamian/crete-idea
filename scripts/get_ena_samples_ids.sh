@@ -43,9 +43,6 @@ echo $projects_file
 echo $directory
 
 ##################################### Start of script ##########################
-### assign the date of retrieval
-DATE=$(date +"%Y-%m-%d")
-
 # keep the first column of the file with the project ids
 
 runs_accession=`cut -f 1 $projects_file`
@@ -55,12 +52,31 @@ ena_pre='https://www.ebi.ac.uk/ena/portal/api/filereport?accession='
 ena_suf='&result=read_run&fields=all&format=tsv'
 
 # for each id build the url and make the api call and save to a file
+cd $directory
+
 for i in $runs_accession
 do
     echo "proceeding to download " $i 
+    mkdir $i
+    mkdir $i/sequences
+    mkdir $i/ena_samples_attr
+    metadata="${i}/ena_samples-${i}.txt"
     ena_call="$ena_pre""$i""$ena_suf"
-    curl -o $directory/${DATE}_ena_samples-${i}.txt $ena_call
-    sleep 3
+    
+    curl -o $metadata $ena_call
+    echo "project sample ids retrieved"
+    sleep 5
+
+    # get the xml files
+    echo "project sample attributes retrieving"
+    ../scripts/get_ena_samples_attributes.py $metadata $i/ena_samples_attr
+
+    # transform the xml files
+    ../scripts/ena_xml_to_csv.py $i/ena_samples_attr $i/ena_samples_attributes-$i.tsv
+
+    
+    sleep 2
+
 done
 
-echo -e "text from $projects_file is in $directory/$text_output \n"
+echo -e "text from $projects_file is in $directory \n"
