@@ -95,9 +95,10 @@ Fungi   11675
 Download all the metadata of the GOLD database from [here](https://gold.jgi.doe.gov/downloads). 
 Select the `Public Studies/Biosamples/SPs/APs/Organisms Excel` option.
 
-## IUCN
+## IUCN RedList
 
-More than 650 assessments of species that occur in Crete are available in IUCN Red Lists.
+More than 650 assessments of species that occur in Crete are available in IUCN Red Lists. 
+The download was two-fold, one for species data and one for species spatial occurrences.
 
 ## EUROPEAN SOIL DATA CENTRE (ESDAC)
 
