@@ -2,66 +2,64 @@
 
 ## Script name: get_species_info.R
 ##
-## Aim:
+## Aim: Retrieve and analyse species of Crete habitats
 ##
 ## Author: Savvas Paragkamian
 ##
-## Date Created: 2022-12-22
+## Date Created: 2023-11-16
 
 library(sf)
 library(tidyverse)
-library(readxl)
+#library(readxl)
 library(rredlist)
-library(taxize)
+#library(taxize)
 library(units)
-library(vegan)
+#library(vegan)
 
 # gbif download
 # use this POLYGON((23.44952 34.65265,26.43362 34.65265,26.43362 35.7184,23.44952 35.7184,23.44952 34.65265))
 # for Crete
 
-
-
-
-# Resolve names
-## gnr_datasources() %>% filter(title=="GBIF Backbone Taxonomy") id=11
-gnr_species <- gnr_resolve(endemic_species$subspeciesname)
-gnr_species_gbif <- gnr_resolve(endemic_species$subspeciesname, data_source_ids=11)
-
-write_delim(gnr_species, "../results/gnr_species_names.tsv", delim="\t")
-# Get GBIF ids
-
-res <- get_gbifid(endemic_species$subspeciesname,ask=F)
-# Total: 343
-# Found: 306
-
-endemic_species$gbif <- as.numeric(res)
-
-endemic_species_no_gbif <- endemic_species[which(is.na(endemic_species$gbif)),]
-
-# Classification
-
-classification_s <- classification(endemic_species$gbif, db = 'gbif')
-
-classification_s_d <- do.call(rbind, classification_s) %>%
-    rownames_to_column(var="gbif") %>% 
-    mutate(gbif = gsub("\\.(.*)","", gbif)) %>%
-    pivot_wider()
-
-classification_s_d_w <- classification_s_d %>% dplyr::select(-id) %>%
-    group_by(gbif, rank, name) %>% 
-    dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
-    dplyr::select(-n) %>%
-    pivot_wider(names_from=rank, values_from=name) %>%
-    mutate(gbif=as.numeric(gbif)) %>%
-    dplyr::select(-`NA`) %>%
-    filter(!is.na(gbif))
-
-endemic_species_tax <- endemic_species %>%
-    left_join(classification_s_d_w, by=c("gbif"="gbif"))
-write_delim(endemic_species_tax, "../results/endemic_species_taxonomy.tsv", delim="\t")
-
 # Red List IUCN
 
+redlist_species <- read_delim("data/redlist_species_data/simple_summary.csv", delim=",")
 
+redlist_points <- read_delim("data/redlist_species_spatial/points_data.csv", delim=",")
+
+redlist_sf_point <- redlist_points %>% st_as_sf(coords=c("longitude", "latitude"),
+                                                remove=F,
+                                                crs="WGS84")
+
+crete_shp <- sf::st_read("data/crete/crete.shp") 
+
+redlist_polygons <- sf::st_read("data/redlist_species_polygons/data_0.shp")
+
+sf_use_s2(FALSE)
+
+redlist_polygons_valid <- st_make_valid(redlist_polygons)
+
+redlist_polygons_crete <- st_crop(redlist_polygons_valid, xmin = 23.44952, ymin = 34.65265, xmax = 26.43362, ymax = 35.7184)
+
+sf_use_s2(TRUE)
+
+redlist_polygons_crete_a <- redlist_polygons_crete %>%
+    left_join(redlist_species, by=c("SCI_NAME"="scientificName")) %>%
+    mutate(area=st_area(.))
+
+redlist_sf_point_crete <- st_intersection(redlist_sf_point,crete_shp) %>%
+    left_join(redlist_species,
+              by=c("sci_name"="scientificName"))
+
+crete_redlist <- ggplot()+
+    geom_sf(crete_shp, mapping=aes())+
+    geom_sf(redlist_polygons_crete_a,
+               mapping=aes(color=phylumName))+
+    theme_bw()+
+    facet_wrap(vars(redlistCategory))
+
+ggsave(plot=crete_redlist,
+       "figures/map_crete_redlist.png",
+       height = 20,
+       width=40,
+       units="cm")
 
