@@ -42,6 +42,9 @@ In the BHL schema it is noted that :
 
 NOTE: This export DOES NOT include all of the pages in the BHL database. It only contains pages on which taxonomic names have been identified.
 
+There is an archive from BHL that contains all OCR text [here](https://smithsonian.figshare.com/articles/dataset/BHL_Optical_Character_Recognition_OCR_-_Full_Text_Export_new_/21422193/12).
+It is about 40gb tarball.
+
 ## Pubmed
 
 Keep the PMIDs of the articles that mention crete

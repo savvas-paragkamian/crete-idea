@@ -1,4 +1,5 @@
-#! /usr/bin/gawk -f
+#! /opt/homebrew/bin/gawk -f
+##############! /usr/bin/gawk -f
 ###############################################################################
 # script name: bhl_search.awk
 # developed by: Savvas Paragkamian
@@ -33,20 +34,24 @@ BEGIN{
     keywords["cretan"]=1
     keywords["kreta"]=1
     keywords["kriti"]=1
+    keywords["crète"]=1
 }
 # file subject.txt, $2 is the name of the subject and $1 is the titleID. 
 # Multiple subjects can have the same subject.
 (NR>1 && ARGIND==1){
 
-    if (tolower($2) ~ /marine/){
-        subject_search[$1]=$2
+    for (var in keywords){
+        
+        if (tolower($2)==var){
+            subject_search[$1]=$2
+        }
     }
 }
 # file title.txt. The $1 is the titleID, $3=title name, $8=year, $10=language
 # In this file is the main search functionality.
 (NR>1 && ARGIND==2){
     
-    if ($8<1961 && $8!=""){
+    if ($8!=""){
         year=$8
         title_year[$1]=$8
 
@@ -58,10 +63,12 @@ BEGIN{
         else {
             split($4, title_words, " ")
             for (i in title_words){
-
-                if (tolower(title_words[i]) in keywords){
-                    title_search[$1]=$4
-                    title_language[$1]=$10
+                for (var in keywords){
+                    if (tolower(title_words[i])==var){
+                        print title_words[i] "\t" var
+                        title_search[$1]=$4
+                        title_language[$1]=$10
+                    }
                 }
             }
         }
@@ -71,7 +78,7 @@ BEGIN{
 # multiple title identifiers. $1=itemID, $2=titleID, $13=year, $16=bhlyear
 # We parse this in order to use it later with the pages.
 (NR>1 && ARGIND==3){
-    if ($2 in title_search && $13<1961){
+    if ($2 in title_search){ #&& $13<1961
         #keep the items that are associated with a title
         items_search[$1]=$2
         if ($13==""){
