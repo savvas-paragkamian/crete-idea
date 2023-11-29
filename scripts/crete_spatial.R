@@ -62,7 +62,7 @@ crete_terrestrial_metagenome <- st_intersection(metadata_wide_sf, crete_shp) %>%
     filter(grepl("metagenome",organism), !grepl("marine|sponge|seawater|sediment",organism))
 
 
-write_delim(crete_terrestrial_metagenome,"crete_terrestrial_metagenome.tsv", delim="\t")
+write_delim(crete_terrestrial_metagenome,"results/crete_terrestrial_metagenome.tsv", delim="\t")
 
 length(unique(crete_terrestrial_metagenome$ENA_STUDY))
 length(unique(crete_terrestrial_metagenome$project_name))
