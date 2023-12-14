@@ -6,7 +6,7 @@ from serpapi import SerpApiClient
 params = {
   "api_key": "de042f985eeb4a064aae150e4dea063d8eb88309c008a32890a24560785e1ed3",
   "engine": "google_scholar",
-  "q": "cretan, OR crete, OR kriti",
+  "q": "cretan, OR crete, OR kriti, OR kreta",
   "hl": "en",
   #  "num": "9"
 }

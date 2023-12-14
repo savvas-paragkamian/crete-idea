@@ -33,6 +33,7 @@ BEGIN{
     keywords["crete"]=1
     keywords["cretan"]=1
     keywords["kreta"]=1
+    keywords["creta"]=1
     keywords["kriti"]=1
     keywords["crète"]=1
 }
