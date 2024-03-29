@@ -12,6 +12,7 @@ library(sf)
 library(terra)
 library(tidyverse)
 library(httr)
+library(RColorBrewer)
 
 crete_shp <- sf::st_read("data/crete/crete.shp") 
 
@@ -35,3 +36,29 @@ wosis_crete <- st_intersection(wosis_gr, crete_shp)
 st_write(wosis_crete, "results/wosis_crete/wosis_crete.shp")
 
 wosis_crete |> st_drop_geometry() |> write_delim("results/wosis_crete/wosis_crete_metadata.tsv", delim="\t")
+
+# plot
+
+g_base <- ggplot() +
+    geom_sf(crete_shp, mapping=aes()) +
+    coord_sf(crs="WGS84") +
+    theme_bw()
+
+g_wosi <- g_base +
+    geom_point(wosis_crete,
+               mapping=aes(x=longitude,
+                           y=latitude,
+                           color=dataset_code),
+               size=2,
+               alpha=0.7) +
+    scale_color_manual(values = c("cyan4","burlywood4", "darkgoldenrod1")) +
+    theme(legend.position = 'bottom',legend.title=element_blank())
+
+ggsave(paste0("figures/map_wosi_crete_soil.png",sep=""),
+       plot=g_wosi, 
+       height = 20, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
+
