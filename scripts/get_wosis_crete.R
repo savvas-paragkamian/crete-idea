@@ -2,6 +2,7 @@
 ## Script name: get_wosis_crete.R
 ##
 ## Aim: Download the latest data from the ISRIC and WoSIS soil spatial service
+## World Soil Information service
 ## Open Geospatial Consortium (OGC) Web Feature Service (WFS)
 ## Author: Savvas Paragkamian
 ##
@@ -12,6 +13,7 @@ library(terra)
 library(tidyverse)
 library(httr)
 
+crete_shp <- sf::st_read("data/crete/crete.shp") 
 
 #Specify the web address of the “latest” version of WoSIS:
 
@@ -26,20 +28,10 @@ wosis_latest <- "ms:wosis_latest_profiles"
 
 wosis_gr <- st_read(dsn = wosis_wfs,
                      layer=wosis_latest,
-                     query= "select * from country_name = 'Gr'")
+                     query= "select * from wosis_latest_profiles where country_name = 'Greece'")
 
-q = list(request = "GetCapabilities")
-res$url
+wosis_crete <- st_intersection(wosis_gr, crete_shp)
 
-url <- parse_url(wosis_wfs)
-url$query <- list(service = "wfs",
-                  #version = "2.0.0", # facultative
-                  request = "GetCapabilities")
-request <- build_url(url)
-request
+st_write(wosis_crete, "results/wosis_crete/wosis_crete.shp")
 
-
-test_gdal <- gdal_utils(
-  util = "info",
-  wosis_wfs
-)
+wosis_crete |> st_drop_geometry() |> write_delim("results/wosis_crete/wosis_crete_metadata.tsv", delim="\t")
