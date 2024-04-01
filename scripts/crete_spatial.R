@@ -10,6 +10,7 @@
 
 
 library(sf)
+library(terra)
 library(tidyverse)
 library(RColorBrewer)
 # crete borders
@@ -145,3 +146,41 @@ ggsave(paste0("figures/map_ena_all_samples_crete.png",sep=""),
        dpi = 300, 
        units="cm",
        device="png")
+
+
+# Harmonized World Soil Database v2.0
+hwsd <- rast("data/HWSD2_RASTER/HWSD2.bil")
+
+hwsd_crete <- crop(hwsd, crete_shp)
+
+writeRaster(hwsd_crete, filename="results/hwsd2_crete.tif")
+
+################ Global land use change hildap_GLOB-v1.0 #####################
+
+path_hilda <- "/Users/talos/Documents/spatial_data/hildap_vGLOB-1.0_geotiff_wgs84/hildap_GLOB-v1.0_lulc-states/"
+output_directory <- "/Users/talos/Documents/spatial_data/hildap_vGLOB-1.0_geotiff_wgs84/hildap_GLOB-v1.0_lulc-states_crete/"
+hilda_files <- list.files(path_hilda)
+
+crete_bbox_polygon <- st_as_sf(st_as_sfc(st_bbox(crete_shp)))
+
+for (f in hilda_files) {
+    
+    if (grepl("*.tif$", f)) {
+        
+        #read_raster
+        path_raster <- paste0(path_hilda,f,sep="")
+        raster_tmp <- rast(path_raster)
+        
+        crete_raster <- terra::crop(raster_tmp, crete_bbox_polygon)
+        output_raster <- paste0(output_directory, "crete_",f,sep="")
+        terra::writeRaster(crete_raster, output_raster,overwrite=TRUE)
+
+        rm(path_raster,raster_tmp,crete_raster,output_raster)
+
+    }else{
+        
+        print(f, " not a tif")
+        next
+    }
+}
+

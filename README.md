@@ -138,3 +138,28 @@ To transform all xml attributes to tsv:
 
 Island Sampling Day, a metagenome project, sampled top soil in 72 locations around Crete
 in 2016 and 2022.
+
+
+## Harmonized World Soil Database v2.0
+
+This dataset (HW2) has two files that are complementary:
+1. raster file with numerical values at 1 sp. km resolution
+2. a mdb file (microsoft access database) with tables containing the attributes
+
+Data can be downloaded from [here](https://www.fao.org/soils-portal/data-hub/soil-maps-and-databases/harmonized-world-soil-database-v20/en/)
+
+The mdb file can be handled without Microsof Access through the MDB Tools.
+[MDB tools](https://github.com/mdbtools/mdbtools) is a set of programs to help you extract data from Microsoft Access files in various settings. 
+
+## World Soil Information service
+Download the latest data from the ISRIC and [WoSIS](https://www.isric.org/explore/wosis) soil spatial service
+from the Open Geospatial Consortium (OGC). The data are availoable from the 
+Web Feature Service (WFS). The script `get_wosis_crete.R` retrieves the locations 
+of soil samples in Crete. 
+
+
+## HILDA+
+Global land use change hildap_GLOB-v1.0 is a great dataset that combines historical 
+and conteporary data to estimate the yearly changes of land use. 
+
+
