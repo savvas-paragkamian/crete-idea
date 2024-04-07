@@ -184,3 +184,9 @@ for (f in hilda_files) {
     }
 }
 
+## global_aridity_index-v3
+
+global_aridity_index <- rast("data/global_aridity_index-v3/Global-AI_ET0_v3_annual/ai_v3_yr.tif")
+crete_aridity <- terra::crop(global_aridity_index, crete_bbox_polygon)
+terra::writeRaster(crete_aridity, "results/crete_aridity_index.tif",overwrite=TRUE)
+
