@@ -11,7 +11,7 @@
 usage="Use the parameter -f for the path of txt file (inside the repository, \
 and first field with the project ids) and -d for the name of the new \
 directory that the results will be saved in.\n\
-Example: ./scripts/get_ena_sample_ids.sh -f example_projects.txt -d ena_samples \n"
+Example: ./scripts/get_ena_sample_ids.sh -f data/ena_post_crete.tsv -d ena_samples \n"
 
 ## User input PDF file
 while getopts "f:d:" option

@@ -16,7 +16,16 @@ library(RColorBrewer)
 # crete borders
 crete_shp <- sf::st_read("data/crete/crete.shp") 
 
-metadata_long <- read_delim("results/ena_samples_attributes-crete.tsv", delim="\t") %>%
+ena_crete_post <- read_delim("data/ena_post_crete.tsv", delim="\t")
+
+arms_samples <- ena_crete_post |>
+    filter(grepl("ARMS", sample_title)) |>
+    st_as_sf(coords=c("lon", "lat"),
+             remove=F,
+             crs="WGS84")
+
+
+metadata_long <- read_delim("results/ena_crete_long.tsv", delim="\t") %>%
     mutate(VALUE=gsub("\\r(?!\\n)","", VALUE, perl=T)) %>%
     distinct(.)
 # metadata to wide format and column name tidy
@@ -26,7 +35,10 @@ metadata_wide <- metadata_long %>%
     mutate(TAG=gsub(" ","_", TAG, perl=T)) %>%
     mutate(TAG=gsub("-","_", TAG, perl=T)) %>%
     mutate(TAG=gsub("\\(|\\)","", TAG, perl=T)) %>%
-    filter(!(TAG %in% c("bio_material", "BioSampleModel"))) %>% # these contain duplicates
+    filter(!(TAG %in% c("ENA_FIRST_PUBLIC",
+                        "ENA_LAST_UPDATE",
+                        "bio_material",
+                        "BioSampleModel"))) %>% # these contain duplicates
     pivot_wider(id_cols="file", names_from=TAG, 
                 values_from=VALUE) %>%
     filter(ENA_STUDY!="ERP024063") # this is the ISD Crete project
@@ -52,7 +64,7 @@ metadata_wide$latitude <- coalesce(metadata_wide$lat, metadata_wide$geographic_l
 metadata_wide$longitude <- coalesce(metadata_wide$lon, metadata_wide$geographic_location_longitude, metadata_wide$longitude)
 
 metadata_wide_sf <- metadata_wide %>%
-    dplyr::select(file,ENA_RUN,ENA_EXPERIMENT, ENA_STUDY,project_name, latitude, longitude,organism,environment_biome) %>%
+    dplyr::select(file,ENA_RUN,ENA_EXPERIMENT, ENA_STUDY,environment_material, project_name, latitude, longitude,organism,environment_biome) %>%
     filter(!is.na(latitude)) %>%
     st_as_sf(coords=c("longitude", "latitude"),
              remove=F,
@@ -92,7 +104,9 @@ ggsave("figures/ena_samples_bar.png",
 
 # filter the terrestrial metagenomes only
 crete_terrestrial_metagenome <- st_intersection(metadata_wide_sf, crete_shp) %>%
-    filter(grepl("metagenome",organism), !grepl("marine|sponge|seawater|sediment",organism))
+    filter(grepl("metagenome|bacterium",organism),
+           #grepl("soil",environment_material),
+           !grepl("marine|sponge|seawater|sediment",organism))
 
 
 write_delim(crete_terrestrial_metagenome,"results/crete_terrestrial_metagenome.tsv", delim="\t")
@@ -105,11 +119,35 @@ getPalette = colorRampPalette(brewer.pal(9, "Set1"))
 colourCount = length(unique(crete_terrestrial_metagenome$organism))
 colourCount_all = length(unique(metadata_wide_sf$organism))
 
-
 g_base <- ggplot() +
     geom_sf(crete_shp, mapping=aes()) +
     coord_sf(crs="WGS84") +
     theme_bw()
+
+ggsave(paste0("figures/map_crete_base.png",sep=""),
+       plot=g_base, 
+       height = 20, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
+
+
+g_arms <- g_base +
+    geom_point(arms_samples,
+               mapping=aes(x=lon,
+                           y=lat),
+               size=2,
+               alpha=0.7) +
+    theme(legend.position = 'bottom',legend.title=element_blank())
+
+ggsave(paste0("figures/map_ena_arms.png",sep=""),
+       plot=g_arms, 
+       height = 20, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
 
 g_ena <- g_base +
     geom_point(crete_terrestrial_metagenome,

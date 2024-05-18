@@ -9,7 +9,7 @@
 # Aim of this script is to retrieve all available attributes from 
 # ENA assigned to each sample of an ENA project.
 ###############################################################################
-# usage:./get_isd_crete_2016_attributes.py path/to/ena_project_file.tsv ena_project_directory
+# usage:./get_ena_samples_attributes.py path/to/ena_project_file.tsv ena_project_directory
 ###############################################################################
 
 import requests, sys, time
