@@ -1,3 +1,5 @@
+![Crete soil system](crete_soil_integration_logo.png)
+
 # Crete data integration
 
 This repository aims to bring together biodiversity knowledge regarding 
@@ -5,11 +7,11 @@ the island of Crete, Greece. Crete has been studied extensively for more
 than three centures. This has resulted in a wealth of knownledge available 
 in the forms of :
 
-* literature (contemporary - PubMed and historical - Biodiversity Heriatage Library),
+* literature (contemporary - PubMed, Google Scholar, Dimensions and historical - Biodiversity Heriatage Library),
 
 * species occurrences and metadata in public databases (GBIF, IUCN)
 
-* environmental data from remote sensing (e.g Copernicus, )
+* environmental data from remote sensing and spatial data (e.g Copernicus, ESDAC, WorldClim)
 
 * sequences from environmental DNA studies (e.g ENA, Mgnify)
 
