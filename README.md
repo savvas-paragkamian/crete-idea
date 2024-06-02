@@ -45,7 +45,25 @@ In the BHL schema it is noted that :
 NOTE: This export DOES NOT include all of the pages in the BHL database. It only contains pages on which taxonomic names have been identified.
 
 There is an archive from BHL that contains all OCR text [here](https://smithsonian.figshare.com/articles/dataset/BHL_Optical_Character_Recognition_OCR_-_Full_Text_Export_new_/21422193/12).
-It is about 40gb tarball.
+It is about 40gb tarball. Unziped is 300 gb and contains 62 million ocred pages of 292 thousand different documents.
+
+
+```
+find . -name "*.txt" | gawk -F"/" 'BEGIN{print "folder" "\t" "items" "\t" "pages"}{folder[$2][$3]++}END{for (f in folder){ for (i in folder[f]){print f "\t" i "\t" folder[f][i]}}}' > ~/crete-data-integration/bhl_ocr_summary.tsv
+
+gawk -F"\t" '(NR>1){sum+=$3}END{print sum}' bhl_ocr_summary.tsv
+```
+
+Information regarding Crete can be mentioned inside the pages of the documents. 
+The title and summaries provided from BHL don't necessarely contain such 
+information. For that reason, search in all pages must be performed.
+
+Crete can be mentioned as Crete , Kriti, Kreta etc, hence the search must 
+include those as well.
+
+```
+find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<kreta\>/){print FILENAME "\t" $0}}' > ~/crete-data-integration/bhl_pages_kreta.tsv
+```
 
 ## Pubmed
 
