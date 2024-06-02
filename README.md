@@ -29,9 +29,18 @@ The integration of biodiversity knowledge in one place is a longstanding
 goal in ecological research. The synthesis of multiple data types and datasets across the globe has enabled 
 holistic approaches to crutial scientific and sociatal questions.
 
-Based on the consept of data representation of ecosystems 
+Based on the consept of digital representation of ecosystems, the following chapters 
+are developed:
 
-## BHL
+Literature
+
+Biodiversity
+
+Spatial data
+
+## Literature
+
+### BHL
 
 Historical literature of Crete's biodiversity.
 
@@ -46,7 +55,6 @@ NOTE: This export DOES NOT include all of the pages in the BHL database. It only
 
 There is an archive from BHL that contains all OCR text [here](https://smithsonian.figshare.com/articles/dataset/BHL_Optical_Character_Recognition_OCR_-_Full_Text_Export_new_/21422193/12).
 It is about 40gb tarball. Unziped is 300 gb and contains 62 million ocred pages of 292 thousand different documents.
-
 
 ```
 find . -name "*.txt" | gawk -F"/" 'BEGIN{print "folder" "\t" "items" "\t" "pages"}{folder[$2][$3]++}END{for (f in folder){ for (i in folder[f]){print f "\t" i "\t" folder[f][i]}}}' > ~/crete-data-integration/bhl_ocr_summary.tsv
@@ -65,7 +73,7 @@ include those as well.
 find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<kreta\>/){print FILENAME "\t" $0}}' > ~/crete-data-integration/bhl_pages_kreta.tsv
 ```
 
-## Pubmed
+### Pubmed
 
 Keep the PMIDs of the articles that mention crete
 
@@ -90,7 +98,19 @@ This abstract retrieval results in 1556 unique abstracts. The name of Crete is d
 positives. These abstracts were manually curated because most of them are biomedical.
 From these, 170 abstracts are from environmental sciences.
 
-## GBIF
+### Google scholar
+
+Google scholar is connected to a nice API, `serpapi`, albeit commercial. 
+There were many articles that were retrieved with this API.
+
+### Dimensions
+Dimensions has the most advanced user interface for academic literature search. 
+Using the interface, a search for Crete, Kriti, Creta in title and abstract has 
+resulted in 30 thousand articles annotated with the Field of Research.
+
+
+## Biodiversity
+### GBIF
 
 > GBIF.org (17 January 2023) GBIF Occurrence Download  https://doi.org/10.15468/dl.xphruk
 
@@ -113,29 +133,12 @@ incertae sedis  871
 Fungi   11675
 ```
 
-## JGI GOLD
+### JGI GOLD
 
 Download all the metadata of the GOLD database from [here](https://gold.jgi.doe.gov/downloads). 
 Select the `Public Studies/Biosamples/SPs/APs/Organisms Excel` option.
 
-## IUCN RedList
-
-More than 650 assessments of species that occur in Crete are available in IUCN Red Lists. 
-The download was two-fold, one for species data and one for species spatial occurrences.
-
-## EUROPEAN SOIL DATA CENTRE (ESDAC)
-
-ESDAC hosts the European soil database which contains information about soils across
-Europe from satelite data as well as sampling data. More specificaly, Land Use and Cover 
-Survey (LUCAS) has valuable point data and soil physical/ chemical properties. This 
-top soil sampling has also reached Crete.
-
-## Copernicus Land Monitoring Service
-
-Copernicus contains multiple remore sensing data that for example categorise the 
-ecotypes of Crete.
-
-## Environmental sequencing samples
+### ENA
 
 ENA database has an API functionality to search with geographic boundaries. 
 
@@ -159,8 +162,26 @@ To transform all xml attributes to tsv:
 Island Sampling Day, a metagenome project, sampled top soil in 72 locations around Crete
 in 2016 and 2022.
 
+### IUCN RedList
 
-## Harmonized World Soil Database v2.0
+More than 650 assessments of species that occur in Crete are available in IUCN Red Lists. 
+The download was two-fold, one for species data and one for species spatial occurrences.
+
+### EUROPEAN SOIL DATA CENTRE (ESDAC)
+
+ESDAC hosts the European soil database which contains information about soils across
+Europe from satelite data as well as sampling data. More specificaly, Land Use and Cover 
+Survey (LUCAS) has valuable point data and soil physical/ chemical properties. This 
+top soil sampling has also reached Crete.
+
+
+## Spatial data
+### Copernicus Land Monitoring Service
+
+Copernicus contains multiple remore sensing data that for example categorise the 
+ecotypes of Crete.
+
+### Harmonized World Soil Database v2.0
 
 This dataset (HW2) has two files that are complementary:
 1. raster file with numerical values at 1 sp. km resolution
@@ -171,14 +192,14 @@ Data can be downloaded from [here](https://www.fao.org/soils-portal/data-hub/soi
 The mdb file can be handled without Microsof Access through the MDB Tools.
 [MDB tools](https://github.com/mdbtools/mdbtools) is a set of programs to help you extract data from Microsoft Access files in various settings. 
 
-## World Soil Information service
+### World Soil Information service
 Download the latest data from the ISRIC and [WoSIS](https://www.isric.org/explore/wosis) soil spatial service
 from the Open Geospatial Consortium (OGC). The data are availoable from the 
 Web Feature Service (WFS). The script `get_wosis_crete.R` retrieves the locations 
 of soil samples in Crete. 
 
 
-## HILDA+
+### HILDA+
 Global land use change hildap_GLOB-v1.0 is a great dataset that combines historical 
 and conteporary data to estimate the yearly changes of land use. 
 
