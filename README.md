@@ -161,14 +161,28 @@ ecotypes of Crete.
 
 ### Harmonized World Soil Database v2.0
 
-This dataset (HW2) has two files that are complementary:
-1. raster file with numerical values at 1 sp. km resolution
+This dataset (HWSD2) has two files that are complementary:
+1. raster file with numerical values at 1 sp. km resolution (.bil format)
 2. a mdb file (microsoft access database) with tables containing the attributes
 
 Data can be downloaded from [here](https://www.fao.org/soils-portal/data-hub/soil-maps-and-databases/harmonized-world-soil-database-v20/en/)
 
+The raster file is loaded to `R terra package` and is cropped to the bounding box of Crete.
+
 The mdb file can be handled without Microsof Access through the MDB Tools.
 [MDB tools](https://github.com/mdbtools/mdbtools) is a set of programs to help you extract data from Microsoft Access files in various settings. 
+
+```
+mdb-export -d "\t" HWSD2.mdb HWSD2_SMU > HWSD2_SMU.tsv
+```
+
+In addition, the WRB4 information is needed to categorise the soils in their taxonomy.
+The mapping of HWSD2 ids to WRB4 ids and description is contained in the D_WRB4 table
+of the HWSD2.mdb database.
+
+```
+mdb-export -d "\t" HWSD2.mdb D_WRB4 > HWSD2_D_WRB4.tsv
+```
 
 ### World Soil Information service
 Download the latest data from the ISRIC and [WoSIS](https://www.isric.org/explore/wosis) soil spatial service
