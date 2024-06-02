@@ -7,36 +7,17 @@ the island of Crete, Greece. Crete has been studied extensively for more
 than three centures. This has resulted in a wealth of knownledge available 
 in the forms of :
 
-* literature (contemporary - PubMed, Google Scholar, Dimensions and historical - Biodiversity Heriatage Library),
+* Literature. Contemporary - PubMed, Google Scholar, Dimensions and historical - Biodiversity Heriatage Library),
 
-* species occurrences and metadata in public databases (GBIF, IUCN)
+* Biodiversity. Species occurrences and metadata in public databases (GBIF, IUCN) and sequences from environmental DNA studies (e.g ENA, Mgnify)
 
-* environmental data from remote sensing and spatial data (e.g Copernicus, ESDAC, WorldClim)
-
-* sequences from environmental DNA studies (e.g ENA, Mgnify)
+* Spatial data. Remote sensing and manual maps (e.g Copernicus, ESDAC, WorldClim)
 
 More specificaly, the focus is on the soil ecosystems of Crete.
-Soils are consindered the cornerstones of terrestrial functioning.
-Biodiversity interactions are between all domains of life which form
-multilevel associations. Bacteria, archaea, unicellular eukaryotes, nematodes,
-earthworms, arthropods, molluscs, plants, mammals; all occur in unison and 
-influence the ecosystems they inhabit with their abundance, biomass and metabolism.
-The plant-insect-soil ecosystem is starting to be studied as a whole to discover
-important associations with practical implications such as plant resistance 
-to insect attack.
-
-The integration of biodiversity knowledge in one place is a longstanding
+Soils are consindered the cornerstones of terrestrial functioning and with 
+the digital representation of ecosystems the aim is to explore new 
+types of associations and generate new hypotheses. The integration of biodiversity knowledge in one place is a longstanding
 goal in ecological research. The synthesis of multiple data types and datasets across the globe has enabled 
-holistic approaches to crutial scientific and sociatal questions.
-
-Based on the consept of digital representation of ecosystems, the following chapters 
-are developed:
-
-Literature
-
-Biodiversity
-
-Spatial data
 
 ## Literature
 
@@ -167,15 +148,12 @@ in 2016 and 2022.
 More than 650 assessments of species that occur in Crete are available in IUCN Red Lists. 
 The download was two-fold, one for species data and one for species spatial occurrences.
 
+## Spatial data
 ### EUROPEAN SOIL DATA CENTRE (ESDAC)
 
 ESDAC hosts the European soil database which contains information about soils across
-Europe from satelite data as well as sampling data. More specificaly, Land Use and Cover 
-Survey (LUCAS) has valuable point data and soil physical/ chemical properties. This 
-top soil sampling has also reached Crete.
+Europe from satelite data as well as sampling data.
 
-
-## Spatial data
 ### Copernicus Land Monitoring Service
 
 Copernicus contains multiple remore sensing data that for example categorise the 
