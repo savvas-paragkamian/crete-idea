@@ -185,6 +185,56 @@ ggsave(paste0("figures/map_ena_all_samples_crete.png",sep=""),
        units="cm",
        device="png")
 
+# EDAPHOBASE
+edaphobase <- read_delim("data/20240603_edaphobase.csv", delim=";")
+
+edaphobase$latitude <- edaphobase$`Latitude (Calculated single value)`
+edaphobase$longitude <- edaphobase$`Longitude (Calculated single value)`
+
+edaphobase_sf <- edaphobase |>
+    filter(latitude!="field restricted",!is.na(longitude), !is.na(latitude)) |>
+    mutate(latitude=as.numeric(latitude)) |>
+    mutate(longitude=as.numeric(longitude)) |>
+    distinct() |>
+    st_as_sf(coords=c("longitude", "latitude"),
+             remove=F,
+             crs="WGS84")
+
+edaphobase_crete_sf <- st_intersection(edaphobase_sf, crete_shp)
+
+write_delim(st_drop_geometry(edaphobase_crete_sf),"results/edaphobase_crete.tsv", delim="\t")
+
+edaphobase_crete_sf_samplings <- edaphobase_crete_sf |>
+    distinct(Data.source,
+             longitude,
+             latitude) |>
+    st_drop_geometry() |>
+    mutate(reference=strtrim(Data.source,30))
+
+colourCount = length(unique(edaphobase_crete_sf_samplings$reference))
+
+g_edaphobase <- g_base +
+    geom_point(edaphobase_crete_sf_samplings,
+               position=position_jitter(h=0.015,w=0.015),
+               mapping=aes(x=longitude,
+                           y=latitude,
+                           color=reference),
+               size=2,
+               alpha=0.5) +
+    scale_color_manual(values = getPalette(colourCount)) +
+    theme(legend.position = 'bottom',
+          legend.text=element_text(size=5),
+          legend.title=element_blank()) +
+    guides(colour = guide_legend(ncol = 4))
+
+#g_edaphobase <- g_edaphobase + facet_wrap(~Data.source)
+ggsave(paste0("figures/map_edophobase_crete.png",sep=""),
+       plot=g_edaphobase, 
+       height = 15, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
 
 # Harmonized World Soil Database v2.0
 hwsd <- rast("data/HWSD2_RASTER/HWSD2.bil")

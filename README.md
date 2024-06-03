@@ -1,4 +1,5 @@
 ![Crete soil system](crete_soil_integration_logo.png)
+*Beetle icon is created by Nicko Studio, Noun Project.*
 
 # Crete data integration
 
@@ -52,7 +53,13 @@ include those as well.
 
 ```
 find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<kreta\>/){print FILENAME "\t" $0}}' > ~/crete-data-integration/bhl_pages_kreta.tsv
+find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<crete\>/){print FILENAME "\t" $0}}' > ~/crete-data-integration/bhl_pages_crete.tsv
+find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<kriti\>/){print FILENAME "\t" $0}}' > ~/crete-data-integration/bhl_pages_kriti.tsv
+find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<cretan\>/){print FILENAME "\t" $0}}' > ~/crete-data-integration/bhl_pages_cretan.tsv
+
 ```
+
+The `\<` and `\>` are to define the word boundaries in awk. 
 
 ### Pubmed
 
@@ -113,6 +120,13 @@ Bacteria        2189
 incertae sedis  871
 Fungi   11675
 ```
+
+### Edaphobase
+Is a curated database of museum records that aims to include all aspects of soil 
+biodiversity.
+
+It has in total, 26 resources with 17 different sampling points covering 120 distinct
+taxa.
 
 ### JGI GOLD
 
