@@ -61,6 +61,79 @@ find . -name "*.txt" | xargs gawk '{if (tolower($0) ~ /\<cretan\>/){print FILENA
 
 The `\<` and `\>` are to define the word boundaries in awk. 
 
+To dig in at the results first collate the files:
+
+```
+cat bhl_pages_cretan.tsv bhl_pages_crete.tsv bhl_pages_kreta.tsv bhl_pages_kriti.tsv > bhl_pages_all_keywords_crete.tsv
+```
+
+```
+gawk -F"\t" '{split($1,id, "/"); items[id[3]]++ ; pages[id[4]]=1}END{print length(items) FS length(pages)}' bhl_pages_all_keywords_crete.tsv
+```
+
+Looking at the distribution of pages per item (document) is important to decide filtering.
+
+```
+gawk -F"\t" '{split($1,id, "/"); items[id[3]]++ ; pages[id[4]]=1}END{for (i in items) {print i FS items[i]}}' bhl_pages_all_keywords_crete.tsv | sort -k 2 -h | cut -f 2 | uniq -c
+
+```
+documents n pages
+16936 1    
+5345 2     
+2270 3     
+1261 4 
+
+Hence 25812 documents contain less that 5 mentions of keywords, conversely there
+are 3696 documents with 5 or more mentions of Crete keywords.
+
+The following oneliner counts the number of pages per item and filters all items
+and pages for the items that have less than 5 hits. They are saved to a new file
+itemid PageID columns. 
+This filtering leads to 35130 pages.
+
+```
+gawk -F"\t" '{split($1,id, "/"); items[id[3]]++ ; pages[id[4]]=1}END{for (i in items) {if (items[i]>4){item_s[i]=1}}; for (p in pages){split(p,p_s,"-"); if (p_s[1] in item_s){print p_s[1] FS p_s[2]}} }' bhl_pages_all_keywords_crete.tsv | sort | uniq > bhl_item_page_filtered.tsv
+```
+
+Are there taxon names identified in these pages? 
+
+```
+gawk -F"\t" 'FNR==NR{a[$2]=$1;next} ($3 in a) {print $2,a[$3],$3}' bhl_item_page_filtered.tsv ../../data/bhl_data/pagename.txt > bhl_item_page_taxa.tsv
+```
+
+There are 23391 pages with taxa names in 3000 items. The total distinct taxa names
+in these pages are 75405. The occurrences of taxa in pages are 214215. 
+
+These items are published in journals or monographs that BHL mentions as titles.
+
+```
+gawk -F"\t" '(ARGIND==1){items[$1]=1}(NR>1 && ARGIND==2){title[$1]=$0}(NR>1 && ARGIND==3 && $1 in items){print $1 FS title[$2]}' bhl_item_page_filtered.tsv ../../data/bhl_data/title.txt ../../data/bhl_data/item.txt > bhl_titles.tsv
+```
+There are 1879 items that are associated with titles that are written in the following languages: 
+
+```
+-       34
+CHI     1
+CZE     1
+DAN     1
+HUN     1
+JPN     1
+POR     1
+RUS     1
+SPA     1
+NOR     2
+SWE     2
+RUM     3
+UND     11
+DUT     12
+LAT     16
+ITA     31
+MUL     37
+FRE     105
+GER     268
+ENG     1350
+```
+
 ### Pubmed
 
 Keep the PMIDs of the articles that mention crete
