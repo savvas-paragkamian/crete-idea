@@ -134,6 +134,12 @@ GER     268
 ENG     1350
 ```
 
+Year of publication. 1482 before 1960.
+
+```
+gawk -F"\t" '(FNR==NR){items[$1]++; next}(NR>1 && $1 in items){print}' bhl_item_page_filtered.tsv ../../data/bhl_data/item.txt > bhl_items_filtered_info.tsv
+```
+
 ### Pubmed
 
 Keep the PMIDs of the articles that mention crete
