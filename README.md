@@ -163,12 +163,17 @@ gawk -F"\t" '(FNR==NR){found[$1]=1; next}(!($2 in found)){print $2}' crete_pubme
 
 This abstract retrieval results in 1556 unique abstracts. The name of Crete is distinct and there are few false 
 positives. These abstracts were manually curated because most of them are biomedical.
-From these, 170 abstracts are from environmental sciences.
+Upon manual curation, 170 abstracts are from environmental sciences.
+
+In addition, a python script was written to retrieve the MeSH terms of each PMID
+as a sanity check of the manual curation.
 
 ### Google scholar
 
 Google scholar is connected to a nice API, `serpapi`, albeit commercial. 
 There were many articles that were retrieved with this API.
+
+
 
 ### Dimensions
 Dimensions has the most advanced user interface for academic literature search. 

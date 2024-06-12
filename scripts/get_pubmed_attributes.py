@@ -17,7 +17,7 @@ import csv
 import os,sys, time
 
 ###################### user input ##################
-pmids_files = sys.argv[1]
+pmids_files = sys.argv[1] # the PMIDs must be in the first column and the file must be tab delimited.
 output_file = sys.argv[2]
 
 pmids = []
