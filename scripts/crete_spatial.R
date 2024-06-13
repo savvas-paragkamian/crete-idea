@@ -315,16 +315,50 @@ ggsave(paste0("figures/map_edophobase_crete.png",sep=""),
 crete_shp <- sf::st_read("data/crete/crete.shp")
 
 clc_crete_shp <- st_read("data/clc_crete_shp/clc_crete_shp.shp")
-crete_geology <- st_read("data/crete_geology/crete_geology.shp")
+
+clc_crete_shp$area <- units::set_units(st_area(clc_crete_shp),km^2)
+
+clc_crete_shp_area <- clc_crete_shp |>
+    st_drop_geometry() |>
+    group_by(LABEL2) |>
+    summarise(area=sum(area))
+
+write_delim(clc_crete_shp_area, "results/clc_crete_label2_area.tsv", delim="\t")
+
+### geology
+
+crete_geology <- st_read("data/crete_geology/crete_geology.shp") |> st_make_valid()
+
+crete_geology$area <- units::set_units(st_area(crete_geology),km^2)
+
+crete_geology_area <- crete_geology |>
+    st_drop_geometry() |>
+    group_by(geology_na) |>
+    summarise(area=sum(area))
+
+
+write_delim(crete_geology_area, "results/crete_geology_area.tsv", delim="\t")
+
+### protected areas
 natura_crete <- sf::st_read("data/natura2000/natura2000_crete.shp")
-wdpa_crete <- sf::st_read("data/wdpa_crete/wdpa_crete.shp") %>% filter(DESIG_ENG=="Wildlife Refugee") %>%
+wdpa_crete <- sf::st_read("data/wdpa_crete/wdpa_crete.shp") |>
     mutate(DESIG_ENG = gsub("Wildlife Refugee", "Wildlife Refuge", DESIG_ENG))
 
 natura_crete_land <- st_intersection(natura_crete, crete_shp)
 natura_crete_land_sci <- natura_crete_land %>% filter(SITETYPE=="B")
 # raster DEM hangling
 dem_crete <- rast("data/dem_crete/dem_crete.tif")
-dem_crete_df <- as.data.frame(dem_crete) %>% filter(dem_crete>0)
+dem_crete_df <- as.data.frame(dem_crete, cells=T) |>
+    filter(dem_crete>0) |>
+    mutate(elevation=cut(dem_crete,
+                             breaks=seq.int(from=0, to=2600, by=200),
+                             dig.lab = 5 ))
+
+dem_crete_area <- dem_crete_df |>
+    group_by(elevation) |>
+    summarise(area=0.0006*n())
+
+write_delim(dem_crete_area, "results/dem_crete_area.tsv", delim="\t")
 # raster bioclim 1 Annual Mean Temperature
 bioclim1_crete <- rast("data/world_clim_crete/crete_wc2.1_30s_bio_1.tif")
 bioclim1_crete_df <- as.data.frame(bioclim1_crete) 
@@ -336,16 +370,27 @@ bioclim12_crete_df <- as.data.frame(bioclim12_crete)
 # raster global aridity index
 aridity_crete <- rast("data/crete_aridity_index.tif")
 aridity_crete[aridity_crete[] == 0 ] = NA
-aridity_crete_df <- as.data.frame(aridity_crete)
+aridity_crete_df <- as.data.frame(aridity_crete, cells=T)
 aridity_crete_df$aridity <- aridity_crete_df$awi_pm_sr_yr*0.0001
 aridity_crete_df$aridity_class <- cut(aridity_crete_df$aridity,
                                       breaks=c(0,0.03,0.2,0.5, 0.65,0.9),
                                       labels=c("Hyper Arid", "Arid", "Semi-Arid", "Dry sub-humid", "Humid"))
 
+aridity_crete_area <- aridity_crete_df |>
+    group_by(aridity_class) |>
+    summarise(area=0.68*n())
+
+write_delim(aridity_crete_area, "results/aridity_crete_area.tsv", delim="\t")
 # raster desertification and Environmental Sensitive Areas Index
 desertification_crete <- rast("data/crete_desertification_risk/esa3rdp_crete.tif")
 desertification_crete_cat <- read_delim("data/crete_desertification_risk/esa3rdp_crete.tsv", delim="\t")
 desertification_crete_df <- as.data.frame(desertification_crete,xy=T, cells=T)
+
+desertification_crete_area <- desertification_crete_df |>
+    group_by(ESA_12CL) |>
+    summarise(area=4.3*n())
+
+write_delim(desertification_crete_area, "results/desertification_crete_area.tsv", delim="\t")
 # harmonised world soil database v2
 
 hwsd2 <- rast("data/hwsd2_crete/hwsd2_crete.tif")
@@ -362,9 +407,13 @@ HWSD2_SMU <- read_delim("data/hwsd2_crete/HWSD2_SMU.tsv", delim="\t") |>
     left_join(HWSD2_wrb4, by=c("WRB4"="CODE"))
 
 hwsd2_df <- hwsd2_df |> 
-    left_join(HWSD2_SMU, by=c("HWSD2"="HWSD2_SMU_ID"))
+    left_join(HWSD2_SMU, by=c("HWSD2"="HWSD2_SMU_ID")) 
 
+hwsd2_area <- hwsd2_df |>
+    group_by(VALUE) |>
+    summarise(area=0.68*n())
 
+write_delim(hwsd2_area, "results/hwsd2_area.tsv", delim="\t")
 
 ### protected areas
 wdpa_crete$area <- units::set_units(st_area(wdpa_crete),km^2)
