@@ -235,7 +235,7 @@ g_ena <- g_base +
 
 ggsave(paste0("figures/map_ena_terrestrial_metagenome_samples_crete.png",sep=""),
        plot=g_ena, 
-       height = 20, 
+       height = 15, 
        width = 30,
        dpi = 300, 
        units="cm",
@@ -310,10 +310,226 @@ ggsave(paste0("figures/map_edophobase_crete.png",sep=""),
        units="cm",
        device="png")
 
+# Gbif 
+gbif <- read_delim("data/crete-gbif_2023-11-01-0034533-231002084531237/occurrence.txt",delim="\t")
+
+gbif_f <- gbif |>
+    dplyr::distinct(phylum,
+                  order,
+                  species,
+                  acceptedScientificName,
+                  references,
+                  publisher,
+                  institutionCode,
+                  year,
+                  decimalLatitude,
+                  decimalLongitude, kingdom)
+
+
+gbif_occ <- gbif_f |>
+    distinct(acceptedScientificName, decimalLatitude,publisher,decimalLongitude, phylum, species, kingdom,year) |>
+    filter(!is.na(decimalLatitude)) %>%
+    st_as_sf(coords=c("decimalLongitude", "decimalLatitude"),
+             remove=F,
+             crs="WGS84")
+
+# filter the terrestrial metagenomes only
+gbif_terrestrial <- st_intersection(gbif_occ, crete_shp)
+length(unique(gbif_terrestrial$acceptedScientificName))
+
+gbif_terrestrial |> distinct(acceptedScientificName, decimalLatitude,decimalLongitude) |> nrow()
+
+write_delim(gbif_terrestrial,"results/gbif_terrestrial_crete.tsv", delim="\t")
+
+
+gbif_f_year <- gbif_terrestrial |>
+    distinct(acceptedScientificName, decimalLatitude,decimalLongitude,year) |>
+    group_by(year,acceptedScientificName) |>
+    summarise(occurrences=n(), .groups="keep") |> 
+    group_by(year) |>
+    summarise(species=n(), occurrences=sum(occurrences))
+
+gbif_historical <- gbif_terrestrial |>
+    filter(year<1960) |>
+    distinct(acceptedScientificName,publisher, decimalLatitude,decimalLongitude,year) |>
+    group_by(year,acceptedScientificName,publisher) |>
+    summarise(occurrences=n(), .groups="keep")|>
+    ungroup()
+
+gbif_terrestrial_map <- gbif_terrestrial |>
+    distinct(decimalLatitude,decimalLongitude,kingdom, acceptedScientificName) |>
+    group_by(decimalLatitude,decimalLongitude,kingdom) |>
+    summarise(taxa=n(), .groups="keep")
+
+# Maps
+colors <- c(
+  "All taxa" = "#000000",     # Black for all-encompassing
+  "Plantae" = "#228B22",      # Forest green for plants
+  "Animalia" = "#FF4500",     # Orange-red for animals
+  "Chromista" = "#8A2BE2",    # Blue-violet for chromists
+  "Fungi" = "#8B4513",        # Saddle brown for fungi
+  "Protozoa" = "#FFD700",     # Gold for protozoa
+  "Bacteria" = "#00CED1",     # Dark turquoise for bacteria
+  "Archaea" = "#FF6347",      # Tomato for archaea
+  "Viruses" = "#708090"       # Slate gray for viruses
+)
+
+g_gbif <- g_base +
+    geom_point(gbif_terrestrial_map,
+               mapping=aes(x=decimalLongitude,
+                           y=decimalLatitude,
+                           color=kingdom,
+                           size=taxa),
+               alpha=0.4) +
+    scale_color_manual(values = colors) +
+    theme(legend.position = 'bottom')
+
+ggsave(paste0("figures/map_gbif_terrestrial_crete.png",sep=""),
+       plot=g_gbif, 
+       height = 15, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
+
+### timeline
+
+species_references_k <- gbif_terrestrial |> 
+    st_drop_geometry() |>
+    distinct(acceptedScientificName,
+             decimalLatitude,
+             decimalLongitude,
+             kingdom,
+             species,
+             year) |>
+    arrange(year) |>
+    mutate(Duplicates=duplicated(acceptedScientificName)) |>
+    mutate(First_occurance=if_else(Duplicates=="FALSE",1,0)) |> 
+    mutate(Classification=kingdom) |> 
+    filter(First_occurance==1) |>
+    mutate(Cumulative_occurance= cumsum(First_occurance)) |> 
+    group_by(year,Classification) |>
+    summarise(Occurance_taxa_year= n(), .groups="keep") |>
+    ungroup() |>
+    group_by(Classification) |> 
+    mutate(Cumulative_occurance= cumsum(Occurance_taxa_year)) |>
+    ungroup() |>
+    na.omit() |>
+    distinct()
+
+species_references_arranged <- gbif_terrestrial |> 
+    st_drop_geometry() |>
+    distinct(acceptedScientificName,
+             decimalLatitude,
+             decimalLongitude,
+             kingdom,
+             species,
+             year) |>
+    arrange(year) |>
+    mutate(Duplicates=duplicated(acceptedScientificName)) |>
+    mutate(First_occurance=if_else(Duplicates=="FALSE",1,0)) |> 
+    mutate(Classification="All taxa") |> 
+    filter(First_occurance==1) |>
+    mutate(Cumulative_occurance= cumsum(First_occurance)) |> 
+    group_by(year,Classification) |>
+    summarise(Occurance_taxa_year= n(), .groups="keep") |>
+    ungroup() |>
+    group_by(Classification) |> 
+    mutate(Cumulative_occurance= cumsum(Occurance_taxa_year)) |>
+    ungroup() |>
+    na.omit() |>
+    bind_rows(species_references_k) |>
+    filter(Classification!="incertae sedis") |>
+    distinct()
+
+# figure
+
+g_taxa_accumulation_gbif <- ggplot()+
+    geom_line(data=species_references_arranged,
+              aes(x=year,
+                  y= Cumulative_occurance,color=Classification),
+              linewidth=1,
+              show.legend = T)+
+    scale_x_continuous(breaks = seq(1680,2030,50),
+                       limits = c(1680,2030),
+                       expand=c(0.015,0))+
+    scale_y_continuous(breaks = seq(0,11000,1000),
+                       limits = c(0,11000),
+                       expand = c(0.01,0))+
+    scale_color_manual(values = colors)+
+    labs(x="Years",
+         y="Cumulative number of taxa, GBIF")+
+    theme_bw()+
+    theme(panel.grid.minor = element_blank(), 
+          panel.grid.major = element_blank(),
+          legend.text = element_text(size = 8),
+          axis.text.y=element_text(margin = margin(t = 0, r = 5, b = 0, l = 15,unit = "pt"),size = 7),
+          axis.text.x = element_text(margin = margin(t = 5, r = 0, b = 15, l = 0,unit = "pt"),size = 7),
+          axis.title = element_text(size=8),
+          panel.border = element_blank(),
+          axis.line.x = element_line(colour = 'black', linewidth = 0.3), 
+          axis.line.y = element_line(colour = 'black', linewidth = 0.3),
+          legend.position = c(0.13,0.5), 
+          legend.title = element_blank())
+  
+ggsave("gbif_taxa_accumulation_classification.png",
+       plot = g_taxa_accumulation_gbif,
+       device = "png",
+       width = 15,
+       height = 10,
+       units = "cm",
+       dpi = 300,
+       path = "figures/")
+
+
+###### wosis_crete
+
+wosis_crete <- read_delim("results/wosis_crete/wosis_crete_metadata.tsv", delim="\t")
+
+
+# plot
+
+g_wosi <- g_base +
+    geom_point(wosis_crete,
+               mapping=aes(x=longitude,
+                           y=latitude,
+                           color=dataset_code),
+               size=2,
+               alpha=0.7) +
+    scale_color_manual(values = c("cyan4","burlywood4", "darkgoldenrod1")) +
+    theme(legend.position = 'bottom',legend.title=element_blank())
+
+ggsave(paste0("figures/map_wosi_crete_soil.png",sep=""),
+       plot=g_wosi, 
+       height = 15, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
+
+### all together
+# Import the image
+
+fig_crete_samples <- ggarrange(g_gbif,
+                               g_edaphobase,
+                               g_ena,
+                               g_wosi,
+          labels = LETTERS[seq( from = 1, to = 4 )],
+          align = "hv",
+          ncol = 2,
+          nrow = 2,
+          font.label=list(color="black",size=7)) + bgcolor("white") + 
+            theme(legend.text = element_text(size = 8))
+
+ggsave("figures/map_crete_samples.png",
+       plot=fig_crete_samples,
+       height = 20,
+       width = 45,
+       dpi = 300,
+       units="cm",
+       device="png")
 ############################### maps #####################################
-
-crete_shp <- sf::st_read("data/crete/crete.shp")
-
+####
 clc_crete_shp <- st_read("data/clc_crete_shp/clc_crete_shp.shp")
 
 clc_crete_shp$area <- units::set_units(st_area(clc_crete_shp),km^2)
