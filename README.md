@@ -140,6 +140,11 @@ Year of publication. 1482 before 1960.
 gawk -F"\t" '(FNR==NR){items[$1]++; next}(NR>1 && $1 in items){print}' bhl_item_page_filtered.tsv ../../data/bhl_data/item.txt > bhl_items_filtered_info.tsv
 ```
 
+Taxa before the 1960.
+```
+gawk -F"\t" '(FNR==NR && $13<1960){a[$1]=1;next}($2 in a) {print $1 FS $2}' bhl_items_filtered_info.tsv bhl_item_page_taxa.tsv | cut -f 1 | sort | uniq | wc -l
+```
+
 ### Pubmed
 
 Keep the PMIDs of the articles that mention crete

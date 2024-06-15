@@ -185,6 +185,13 @@ crete_terrestrial_metagenome <- st_intersection(metadata_wide_sf, crete_shp) %>%
 
 write_delim(crete_terrestrial_metagenome,"results/crete_terrestrial_metagenome.tsv", delim="\t")
 
+crete_terrestrial_metagenome_s <- crete_terrestrial_metagenome |>
+    group_by(ENA_STUDY, organism) |>
+    summarise(n=n(),.groups="keep") |>
+    group_by(organism) |>
+    summarise(studies=n(), samples=sum(n)) |>
+    arrange(samples)
+
 length(unique(crete_terrestrial_metagenome$ENA_STUDY))
 length(unique(crete_terrestrial_metagenome$project_name))
 
@@ -382,6 +389,7 @@ g_gbif <- g_base +
                            size=taxa),
                alpha=0.4) +
     scale_color_manual(values = colors) +
+    labs(x="longitude", y="latitude")+
     theme(legend.position = 'bottom')
 
 ggsave(paste0("figures/map_gbif_terrestrial_crete.png",sep=""),
@@ -518,8 +526,7 @@ fig_crete_samples <- ggarrange(g_gbif,
           align = "hv",
           ncol = 2,
           nrow = 2,
-          font.label=list(color="black",size=7)) + bgcolor("white") + 
-            theme(legend.text = element_text(size = 8))
+          font.label=list(color="black",size=22)) + bgcolor("white") 
 
 ggsave("figures/map_crete_samples.png",
        plot=fig_crete_samples,
@@ -549,7 +556,7 @@ crete_geology$area <- units::set_units(st_area(crete_geology),km^2)
 
 crete_geology_area <- crete_geology |>
     st_drop_geometry() |>
-    group_by(geology_na) |>
+    group_by(geology_fo, geology_na) |>
     summarise(area=sum(area))
 
 
