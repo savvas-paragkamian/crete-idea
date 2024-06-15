@@ -37,6 +37,7 @@ st_write(wosis_crete, "results/wosis_crete/wosis_crete.shp")
 
 wosis_crete |> st_drop_geometry() |> write_delim("results/wosis_crete/wosis_crete_metadata.tsv", delim="\t")
 
+
 # plot
 
 g_base <- ggplot() +
@@ -56,7 +57,7 @@ g_wosi <- g_base +
 
 ggsave(paste0("figures/map_wosi_crete_soil.png",sep=""),
        plot=g_wosi, 
-       height = 20, 
+       height = 15, 
        width = 30,
        dpi = 300, 
        units="cm",
