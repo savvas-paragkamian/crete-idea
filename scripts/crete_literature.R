@@ -6,13 +6,17 @@
 ## Author: Savvas Paragkamian
 ##
 ## Date Created: 2024-06-12
-
+library(taxize)
 library(tidyverse)
 library(RColorBrewer)
 
 setwd("../")
 
 #################### load data #########################
+# BHL
+bhl_taxa <- read_delim("results/bhl/bhl_item_page_taxa.tsv", delim="\t", col_names=F)
+colnames(bhl_taxa) <- c("taxonName","itemID", "pageID")
+
 # pubmed
 pubmed_mesh <- read_delim("results/pubmed_mesh.tsv", delim="\t")
 pubmed_curated <- read_delim("results/crete_pubmed_curated.tsv", delim="\t",col_names=F) |> 
@@ -28,6 +32,14 @@ dimensions <- read_delim("results/Dimensions-Publication-2024-06-02_18-36-52.csv
                          skip=1)
 # google scholar
 scholar <- read_delim("results/scholar_crete.tsv", delim="\t")
+
+#################################### BHL ##################################
+
+
+gbif_bhl_ids <- get_gbifid(bhl_taxa$taxonName,rows=1)
+
+saveRDS(gbif_bhl_ids, file = "gbif_bhl_ids.rds")
+quit(0)
 
 ############### pubmed ##########
 
