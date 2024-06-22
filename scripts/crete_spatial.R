@@ -320,6 +320,7 @@ ggsave(paste0("figures/map_edophobase_crete.png",sep=""),
 # Gbif 
 gbif <- read_delim("data/crete-gbif_2023-11-01-0034533-231002084531237/occurrence.txt",delim="\t")
 
+
 gbif_f <- gbif |>
     dplyr::distinct(phylum,
                   order,
@@ -332,10 +333,20 @@ gbif_f <- gbif |>
                   decimalLatitude,
                   decimalLongitude, kingdom)
 
+citizen_science <- c("Cornell Lab of Ornithology", "iNaturalist.org","Observation.org", "Pl@ntNet", "naturgucker.de")
+
+gbif_occ_citizen <- gbif_f |>
+    distinct(acceptedScientificName, decimalLatitude,publisher,decimalLongitude, phylum, species, kingdom,year) |>
+    filter(!is.na(decimalLatitude)) |>
+    filter(publisher %in% citizen_science) |>
+    st_as_sf(coords=c("decimalLongitude", "decimalLatitude"),
+             remove=F,
+             crs="WGS84")
 
 gbif_occ <- gbif_f |>
     distinct(acceptedScientificName, decimalLatitude,publisher,decimalLongitude, phylum, species, kingdom,year) |>
-    filter(!is.na(decimalLatitude)) %>%
+    filter(!is.na(decimalLatitude)) |>
+    filter(!(publisher %in% citizen_science)) |>
     st_as_sf(coords=c("decimalLongitude", "decimalLatitude"),
              remove=F,
              crs="WGS84")
@@ -462,7 +473,7 @@ g_taxa_accumulation_gbif <- ggplot()+
                        limits = c(1680,2030),
                        expand=c(0.015,0))+
     scale_y_continuous(breaks = seq(0,11000,1000),
-                       limits = c(0,11000),
+                       limits = c(0,8000),
                        expand = c(0.01,0))+
     scale_color_manual(values = colors)+
     labs(x="Years",
