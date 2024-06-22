@@ -38,8 +38,32 @@ scholar <- read_delim("results/scholar_crete.tsv", delim="\t")
 
 gbif_bhl_ids <- get_gbifid(bhl_taxa$taxonName,rows=1)
 
-saveRDS(gbif_bhl_ids, file = "gbif_bhl_ids.rds")
-quit(0)
+saveRDS(gbif_bhl_ids, file = "results/bhl/gbif_bhl_ids.rds")
+gbif_bhl_ids_u <- unique(gbif_bhl_ids)
+
+classification_gbif <- classification(gbif_bhl_ids_u, db = 'gbif') 
+
+saveRDS(classification_gbif, file = "results/bhl/gbif_bhl_classification.rds")
+
+combined_df <- do.call(rbind,classification_gbif)
+
+combined_df$gbif_bhl <- rownames(combined_df)
+
+combined_df <- as_tibble(combined_df) |> mutate(gbif_bhl = gsub("\\.[0-9]*$","",gbif_bhl))
+
+plant <- combined_df |> filter(name %in% c("Plantae") )
+
+combined_df_f <- combined_df |> filter(gbif_bhl %in% plant$gbif_bhl & rank=="phylum")
+
+phyla_summary_p <- combined_df_f |> group_by(name) |> summarise(n_taxa=n()) |> filter(n_taxa>10)
+write_delim(phyla_summary_p, "results/bhl/bhl_gbif_phyla_summary_plant.tsv", delim="\t")
+animal <- combined_df |> filter(name %in% c("Animalia") )
+
+combined_df_f <- combined_df |> filter(gbif_bhl %in% animal$gbif_bhl & rank=="phylum")
+
+phyla_summary_a<- combined_df_f |> group_by(name) |> summarise(n_taxa=n()) |> filter(n_taxa>10)
+write_delim(phyla_summary_a, "results/bhl/bhl_gbif_phyla_summary_animal.tsv", delim="\t")
+
 
 ############### pubmed ##########
 
