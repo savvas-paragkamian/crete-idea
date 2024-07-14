@@ -210,6 +210,16 @@ incertae sedis  871
 Fungi   11675
 ```
 
+### IUCN
+
+The search of Kriti in IUCN has this [permalink](https://www.iucnredlist.org/search?dl=true&permalink=f3070cba-98ca-469c-92ab-289e02130d1c).
+There are 692 species, the non marine are 602. The link has 3 options for download
+
+1. All data with multiple csv files
+2. polygons with distributions of taxa
+3. point data for the species that are available
+
+
 ### Edaphobase
 Is a curated database of museum records that aims to include all aspects of soil 
 biodiversity.
