@@ -87,6 +87,7 @@ spatial_area_summary <- function(spatial_area,attribute){
 }
 
 # crete borders
+setwd("../")
 crete_shp <- sf::st_read("data/crete/crete.shp") 
 
 ############################### samplings #####################################
@@ -102,7 +103,7 @@ arms_samples <- ena_crete_post |>
 metadata_long <- read_delim("results/ena_crete_long.tsv", delim="\t") %>%
     mutate(VALUE=gsub("\\r(?!\\n)","", VALUE, perl=T)) %>%
     distinct(.)
-# metadata to wide format and column name tidy
+#metadata to wide format and column name tidy
 
 metadata_wide <- metadata_long %>% 
     dplyr::select(-c(UNITS)) %>%
@@ -114,8 +115,8 @@ metadata_wide <- metadata_long %>%
                         "bio_material",
                         "BioSampleModel"))) %>% # these contain duplicates
     pivot_wider(id_cols="file", names_from=TAG, 
-                values_from=VALUE) %>%
-    filter(ENA_STUDY!="ERP024063") # this is the ISD Crete project
+                values_from=VALUE)# %>%
+    #filter(ENA_STUDY!="ERP024063") # this is the ISD Crete project
 
 
 metadata_wide$elevation <- as.numeric(metadata_wide$geographic_location_elevation)
@@ -199,11 +200,21 @@ length(unique(crete_terrestrial_metagenome$project_name))
 getPalette = colorRampPalette(brewer.pal(9, "Set1"))
 colourCount = length(unique(crete_terrestrial_metagenome$organism))
 colourCount_all = length(unique(metadata_wide_sf$organism))
+colourCount_biome = length(unique(metadata_wide_sf$environment_biome))
 
 g_base <- ggplot() +
     geom_sf(crete_shp, mapping=aes()) +
     coord_sf(crs="WGS84") +
-    theme_bw()
+    theme_bw() +
+    theme(axis.title=element_blank(),
+          legend.position = 'bottom',
+          legend.title=element_blank(),
+          panel.border = element_blank(),
+          panel.grid.major = element_blank(), #remove major gridlines
+          panel.grid.minor = element_blank(), #remove minor gridlines
+          line = element_blank(),
+          axis.text=element_blank(),
+    )
 
 ggsave(paste0("figures/map_crete_base.png",sep=""),
        plot=g_base, 
@@ -238,7 +249,15 @@ g_ena <- g_base +
                size=2,
                alpha=0.7) +
     scale_color_manual(values = getPalette(colourCount)) +
-    theme(legend.position = 'bottom',legend.title=element_blank())
+    theme(axis.title=element_blank(),
+          legend.position = 'bottom',
+          legend.title=element_blank(),
+          panel.border = element_blank(),
+          panel.grid.major = element_blank(), #remove major gridlines
+          panel.grid.minor = element_blank(), #remove minor gridlines
+          line = element_blank(),
+          axis.text=element_blank(),
+    )
 
 ggsave(paste0("figures/map_ena_terrestrial_metagenome_samples_crete.png",sep=""),
        plot=g_ena, 
@@ -260,6 +279,24 @@ g_ena_all <- g_base +
 
 ggsave(paste0("figures/map_ena_all_samples_crete.png",sep=""),
        plot=g_ena_all, 
+       height = 20, 
+       width = 30,
+       dpi = 300, 
+       units="cm",
+       device="png")
+
+g_ena_all_biome <- g_base +
+    geom_point(metadata_wide_sf,
+               mapping=aes(x=longitude,
+                           y=latitude,
+                           color=environment_biome),
+               size=2,
+               alpha=0.7) +
+    scale_color_manual(values = getPalette(colourCount_biome)) +
+    theme(legend.position = 'bottom',legend.title=element_blank())
+
+ggsave(paste0("figures/map_ena_all_samples_crete_biome.png",sepome=""),
+       plot=g_ena_all_biome, 
        height = 20, 
        width = 30,
        dpi = 300, 
