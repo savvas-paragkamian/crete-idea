@@ -25,6 +25,7 @@ create_dir <- function(dir_name){
         print(paste0(dir_name, " directory exists", sep=""))
     }
 }
+
 convert_nested_l_df <- function(list_of_l_of_df){
 
     # transormation of nested list of lists to list of dataframes
@@ -615,6 +616,9 @@ natura_crete <- sf::st_read("data/natura2000/natura2000_crete.shp")
 wdpa_crete <- sf::st_read("data/wdpa_crete/wdpa_crete.shp") |>
     mutate(DESIG_ENG = gsub("Wildlife Refugee", "Wildlife Refuge", DESIG_ENG))
 
+wdpa_crete_wildlife <- wdpa_crete |>
+    filter(DESIG_ENG=="Wildlife Refuge")
+
 natura_crete_land <- st_intersection(natura_crete, crete_shp)
 natura_crete_land_sci <- natura_crete_land %>% filter(SITETYPE=="B")
 # raster DEM hangling
@@ -878,7 +882,7 @@ for (i in 1:length(hilda_files)){
            device="png")
 }
 
-## HILDA difference of land use, 1999-2019
+## HILDA difference of land use, 1978-2018
 ##
 hilda_1978 <- rast("data/hildap_GLOB-v1.0_lulc-states_crete/crete_hilda_plus_1978_states_GLOB-v1-0_wgs84-nn.tif")
 
@@ -1001,7 +1005,7 @@ for (i in seq_along(clc_crete_summary)){
     write_delim(merged,
                 paste0("results/clc_crete_", 
                        names(clc_area_ovelaps_df)[i],
-                       ".tsv",sep=""),
+                       ".tsv"),
                 delim="\t")
 }
 
