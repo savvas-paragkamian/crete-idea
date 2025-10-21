@@ -53,18 +53,24 @@ taxonomy <- simple_summary |>
 points_sf_c_s <- points_sf_c |>
     left_join(taxonomy, by=c("sci_name"="scientificName"))
 
+# summary
+points_sf_c_s_s <- points_sf_c_s |>
+    distinct(sci_name, dec_long,dec_lat)
+
 # summary taxa
 phyla_taxa <- simple_summary |>
     group_by(phylumName) |>
     summarise(species=n())
 
+# summary redlist categories
 phyla_taxa_redlist <- simple_summary |>
-    group_by(phylumName, redlistCategory) |>
+    group_by(phylumName, redlistCategory, scopes) |>
     summarise(n=n(), .groups="keep") |>
     pivot_wider(names_from=redlistCategory, values_from=n) |>
     left_join(phyla_taxa)
 
 write_delim(phyla_taxa_redlist, "results/iucn_phyla_taxa_redlist.tsv", delim="\t")
+
 
 # summary threats
 
@@ -79,6 +85,7 @@ threats_summary_phyla <- threats |>
     summarise(n=n(), .groups="keep") |>
     arrange(desc(n))
 
+write_delim(threats_summary_phyla, "results/threats_summary_phyla.tsv", delim="\t")
 # maps 
 
 colors <- c(

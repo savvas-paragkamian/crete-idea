@@ -12,6 +12,8 @@ library(terra)
 library(tidyverse)
 library(RColorBrewer)
 library(ggpubr)
+library(cowplot)
+library(magick)
 
 ###################################### functions ############################
 
@@ -644,8 +646,6 @@ lter_plot <- ggdraw() + draw_image(lter)
 
 ### all together
 # Import the image
-library(cowplot)
-library(magick)
 
 
 g_line_safe <- ggdraw() + draw_plot(g_taxa_accumulation_gbif, scale = 0.7)
