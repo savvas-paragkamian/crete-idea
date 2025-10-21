@@ -89,6 +89,7 @@ spatial_area_summary <- function(spatial_area,attribute){
 
 # crete borders
 setwd("../")
+
 crete_shp <- sf::st_read("data/crete/crete.shp") 
 
 ############################### samplings #####################################
@@ -248,11 +249,12 @@ g_ena <- g_base +
                            y=latitude,
                            color=organism),
                size=2,
-               alpha=0.7) +
+               alpha=0.8) +
     scale_color_manual(values = getPalette(colourCount)) +
     theme(axis.title=element_blank(),
           legend.position = 'bottom',
           legend.title=element_blank(),
+          legend.text=element_text(size=10),
           panel.border = element_blank(),
           panel.grid.major = element_blank(), #remove major gridlines
           panel.grid.minor = element_blank(), #remove minor gridlines
@@ -274,9 +276,11 @@ g_ena_all <- g_base +
                            y=latitude,
                            color=organism),
                size=2,
-               alpha=0.7) +
+               alpha=0.8) +
     scale_color_manual(values = getPalette(colourCount_all)) +
-    theme(legend.position = 'bottom',legend.title=element_blank())
+    theme(legend.position = 'bottom',
+          legend.text=element_text(size=10),
+          legend.title=element_blank())
 
 ggsave(paste0("figures/map_ena_all_samples_crete.png",sep=""),
        plot=g_ena_all, 
@@ -292,9 +296,11 @@ g_ena_all_biome <- g_base +
                            y=latitude,
                            color=environment_biome),
                size=2,
-               alpha=0.7) +
+               alpha=0.8) +
     scale_color_manual(values = getPalette(colourCount_biome)) +
-    theme(legend.position = 'bottom',legend.title=element_blank())
+    theme(legend.position = 'bottom',
+          legend.text=element_text(size=10),
+          legend.title=element_blank())
 
 ggsave(paste0("figures/map_ena_all_samples_crete_biome.png",sepome=""),
        plot=g_ena_all_biome, 
@@ -339,12 +345,12 @@ g_edaphobase <- g_base +
                            y=latitude,
                            color=reference),
                size=2,
-               alpha=0.5) +
+               alpha=0.8) +
     scale_color_manual(values = getPalette(colourCount)) +
     theme(legend.position = 'bottom',
-          legend.text=element_text(size=5),
+          legend.text=element_text(size=10),
           legend.title=element_blank()) +
-    guides(colour = guide_legend(ncol = 4))
+    guides(colour = guide_legend(ncol = 3))
 
 #g_edaphobase <- g_edaphobase + facet_wrap(~Data.source)
 ggsave(paste0("figures/map_edophobase_crete.png",sep=""),
@@ -439,7 +445,9 @@ g_gbif <- g_base +
                alpha=0.4) +
     scale_color_manual(values = colors) +
     labs(x="longitude", y="latitude")+
-    theme(legend.position = 'bottom')
+    theme(
+          legend.text=element_text(size=10),
+          legend.position = 'bottom')
 
 ggsave(paste0("figures/map_gbif_terrestrial_crete.png",sep=""),
        plot=g_gbif, 
@@ -526,7 +534,7 @@ g_taxa_accumulation_gbif <- ggplot()+
           panel.border = element_blank(),
           axis.line.x = element_line(colour = 'black', linewidth = 0.3), 
           axis.line.y = element_line(colour = 'black', linewidth = 0.3),
-          legend.position = c(0.13,0.5), 
+          legend.position = "bottom", 
           legend.title = element_blank())
   
 ggsave("gbif_taxa_accumulation_classification.png",
@@ -552,9 +560,11 @@ g_wosi <- g_base +
                            y=latitude,
                            color=dataset_code),
                size=2,
-               alpha=0.7) +
+               alpha=0.8) +
     scale_color_manual(values = c("cyan4","burlywood4", "darkgoldenrod1")) +
-    theme(legend.position = 'bottom',legend.title=element_blank())
+    theme(legend.position = 'bottom',
+          legend.text=element_text(size=10),
+          legend.title=element_blank())
 
 ggsave(paste0("figures/map_wosi_crete_soil.png",sep=""),
        plot=g_wosi, 
@@ -564,26 +574,111 @@ ggsave(paste0("figures/map_wosi_crete_soil.png",sep=""),
        units="cm",
        device="png")
 
+
+# IUCN
+
+simple_summary <- read_delim("data/redlist_species_data_2a1d7856-4956-47ca-8b8c-8c079b336929/simple_summary.csv", delim=",") 
+
+taxonomy <- simple_summary |>
+    distinct(scientificName,phylumName)
+
+
+points <- read_delim("data/redlist_species_data_e48f862b-1a85-4d8e-a0e1-09fa0747a5e1/points_data.csv", delim=",")
+
+
+points_sf <- points |>
+    st_as_sf(coords=c("dec_long", "dec_lat"),
+             remove=F,
+             crs="WGS84")
+
+points_sf_c <- st_intersection(points_sf,crete_shp)
+
+colors <- c(
+  "TRACHEOPHYTA" = "#228B22",      # Forest green for plants
+  "ARTHROPODA" = "#FF4500",     # Orange-red for animals
+  "PORIFERA" = "#8A2BE2",    # Blue-violet for chromists
+  "MOLLUSCA" = "#8B4513",        # Saddle brown for fungi
+  "BASIDIOMYCOTA" = "#FFD700"     # Gold for protozoa
+)
+
+# points with data
+points_sf_c_s <- points_sf_c |>
+    left_join(taxonomy, by=c("sci_name"="scientificName"))
+# iucn figure
+
+g_iucn <- g_base +
+    geom_sf(points_sf_c_s,
+            mapping=aes(color=phylumName),
+            alpha=0.8,
+            size=2,
+            show.legend=T)+
+    scale_color_manual(values = colors) +
+    theme(legend.position = 'bottom',
+          legend.text=element_text(size=10),
+          legend.title=element_blank()
+    )
+
+ggsave("figures/iucn_taxa_map.png",
+       g_iucn,
+       height = 15, 
+       width = 20,
+       dpi = 600, 
+       unit="cm",
+       device="png")
+
+#### Natura2000 Article 17 #########
+
+art17 <- st_read("data/GR_Art17_species_distribution/GR_Art17_species_distribution.shp")
+
+art17_w <- art17 |>
+    st_transform(crs="WGS84") |>
+    st_make_valid()
+
+art17_c <- st_intersection(art17_w, crete_shp)
+
+# monitoring stations
+
+lter <- png::readPNG("figures/map_crete_lter.png")
+
+lter_plot <- ggdraw() + draw_image(lter)
+
 ### all together
 # Import the image
+library(cowplot)
+library(magick)
 
-fig_crete_samples <- ggarrange(g_gbif,
-                               g_edaphobase,
-                               g_ena,
-                               g_wosi,
-          labels = LETTERS[seq( from = 1, to = 4 )],
-          align = "hv",
-          ncol = 2,
-          nrow = 2,
-          font.label=list(color="black",size=22)) + bgcolor("white") 
 
+g_line_safe <- ggdraw() + draw_plot(g_taxa_accumulation_gbif, scale = 0.7)
+
+fig_crete_samples <- plot_grid(
+  g_gbif,
+  g_line_safe,
+  g_ena_all_biome,
+  g_ena,
+  g_edaphobase,
+  lter_plot,
+  g_iucn,
+  g_wosi,
+  labels = LETTERS[1:8],
+  label_size = 18,
+  ncol = 2,
+  nrow = 4,
+  align = "v",
+  rel_widths = c(1,1, 1, 1, 0.8, 2, 1, 1)
+)
+
+# Add a white background
+fig_crete_samples <- ggdraw(fig_crete_samples) + theme(plot.background = element_rect(fill = "white", color = NA))
+
+# save to file
 ggsave("figures/map_crete_samples.png",
        plot=fig_crete_samples,
-       height = 20,
-       width = 45,
-       dpi = 300,
+       height = 35,
+       width = 42,
+       dpi = 600,
        units="cm",
        device="png")
+
 ############################### maps #####################################
 ####
 clc_crete_shp <- st_read("data/clc_crete_shp/clc_crete_shp.shp")
