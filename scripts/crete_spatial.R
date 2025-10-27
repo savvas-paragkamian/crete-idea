@@ -977,12 +977,12 @@ for (i in 1:length(hilda_files)){
            device="png")
 }
 
-## HILDA difference of land use, 1978-2018
+## HILDA difference of land use, 1976-2016
 ##
-hilda_1978 <- rast("data/hildap_GLOB-v1.0_lulc-states_crete/crete_hilda_plus_1978_states_GLOB-v1-0_wgs84-nn.tif")
+hilda_1976 <- rast("data/hildap_GLOB-v1.0_lulc-states_crete/crete_hilda_plus_1976_states_GLOB-v1-0_wgs84-nn.tif")
 
 
-hilda_2018 <- rast("data/hildap_GLOB-v1.0_lulc-states_crete/crete_hilda_plus_2018_states_GLOB-v1-0_wgs84-nn.tif")
+hilda_2016 <- rast("data/hildap_GLOB-v1.0_lulc-states_crete/crete_hilda_plus_2016_states_GLOB-v1-0_wgs84-nn.tif")
 ## what is the transitions?
 ## the raster objects contain numeric values. The smart thing about this dataset
 ## is that I can use the numbers that are to show the category and create new
@@ -993,27 +993,27 @@ hilda_2018 <- rast("data/hildap_GLOB-v1.0_lulc-states_crete/crete_hilda_plus_201
 ## Transform the latest raster to the units. so 44 = 4,
 ## Modulus operation 44 %% 10
 
-hilda_1978_o <- app(hilda_1978, fun=function(i) i-i %% 10)
-hilda_2018_o <- app(hilda_2018, fun=function(i) i %% 10)
+hilda_1976_o <- app(hilda_1976, fun=function(i) i-i %% 10)
+hilda_2016_o <- app(hilda_2016, fun=function(i) i %% 10)
 
-hilda_1978_2018 <- hilda_1978_o + hilda_2018_o
+hilda_1976_2016 <- hilda_1976_o + hilda_2016_o
 
-hilda_1978_2018_sf <- st_as_sf(as.polygons(hilda_1978_2018,aggregate=F,values=T)) 
+hilda_1976_2016_sf <- st_as_sf(as.polygons(hilda_1976_2016,aggregate=F,values=T)) 
 
-st_write(hilda_1978_2018_sf,
-         "data/hilda_1978_2018/hilda_1978_2018.shp", 
+st_write(hilda_1976_2016_sf,
+         "data/hilda_1976_2016/hilda_1976_2016.shp", 
          append=F,
          delete_layer=T,
          delete_dsn = TRUE) 
 
-
+writeRaster(hilda_1976_2016, "data/hilda_1976_2016/hilda_1976_2016.tif")
 
 ### Hilda summary
-hilda_1978_2018_df <- terra::as.data.frame(hilda_1978_2018, xy=TRUE, cells=TRUE) |>
+hilda_1976_2016_df <- terra::as.data.frame(hilda_1976_2016, xy=TRUE, cells=TRUE) |>
     filter(lyr.1>0)
 #    left_join(hilda_cat, by=c("hilda_id"="hilda_id"))
 
-hilda_sum <- zonal(cellSize(hilda_1978_2018), hilda_1978_2018, "sum") |> 
+hilda_sum <- zonal(cellSize(hilda_1976_2016), hilda_1976_2016, "sum") |> 
     mutate(crete_m2=units::set_units(area,m^2)) |>
     mutate(crete=units::set_units(area/10^6, km^2)) 
 
@@ -1022,7 +1022,7 @@ hilda_sum <- hilda_sum |>
     filter(hilda_sum[,1]>0) |> 
     left_join(hilda_id_names, by=c("hilda_id_transition"="hilda_id"))
 
-write_delim(hilda_sum, "data/hilda_1978_2018/hilda_1978_2018.tsv", delim="\t")
+write_delim(hilda_sum, "data/hilda_1976_2016/hilda_1976_2016.tsv", delim="\t")
 
 ### Natura2000 diffence of land use, 1998-2018
 #natura_crete_land_hilda <- terra::mask(hilda_1998_2018, natura_crete_land)
