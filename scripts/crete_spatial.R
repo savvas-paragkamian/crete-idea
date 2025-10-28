@@ -825,7 +825,7 @@ g_wdpa <- g_base +
           legend.key.size = unit(3, "mm"), 
           legend.text=element_text(size=7))
 
-ggsave("figures/wdpa_protected_aread.png",
+ggsave("figures/wdpa_protected_areas.png",
        g_wdpa,
        height = 15, 
        width = 20,
